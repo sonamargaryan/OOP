@@ -35,7 +35,7 @@ bool FileCreator::writeAssembly(const std::string& assemblyCode) {
 }
 
 bool FileCreator::assemble() {
-    std::string cmd = "riscv32-unknown-elf-as"
+    std::string cmd = "riscv64-unknown-elf-as"
                       " -march=rv32im"
                       " -mabi=ilp32"
                       " " + getAsmFile() +
@@ -44,7 +44,7 @@ bool FileCreator::assemble() {
     return runCommand(cmd, "Assembler");
 }
 bool FileCreator::link() {
-    std::string cmd = "riscv32-unknown-elf-ld"
+    std::string cmd = "riscv64-unknown-elf-ld"
                       " -m elf32lriscv"
                       " " + getObjFile() +
                       " -o " + getExecFile();
