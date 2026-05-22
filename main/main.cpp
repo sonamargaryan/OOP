@@ -6,15 +6,20 @@
 #include "IRGenerator.h"
 #include "Optimizer.h"
 #include "CodeGenerator.h"
-#include "Filecreator.h"
+#include "FileCreator.h"
+#include "VM.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: ./compiler <input.mylang> [output]\n";
+        std::cerr << "Usage: ./compiler <input.mylang> [output] [--run]\n";
         return 1;
     }
 
-    std::string outputName = (argc >= 3) ? argv[2] : "output";
+    std::string outputName = (argc >= 3 && std::string(argv[2]) != "--run")
+                              ? argv[2] : "output";
+    bool runVM = false;
+    for (int i = 1; i < argc; i++)
+        if (std::string(argv[i]) == "--run") runVM = true;
 
     std::ifstream file(argv[1]);
     if (!file.is_open()) {
@@ -49,12 +54,19 @@ int main(int argc, char* argv[]) {
         std::ostringstream asmStream;
         CodeGenerator codegen(asmStream);
         codegen.generate(optimized);
-
         std::cout << asmStream.str();
         std::cout << "\n✓ Code Generation done\n";
 
         FileCreator fc(outputName);
         fc.createExecutable(asmStream.str());
+
+        if (runVM) {
+            std::cout << "\n═══ VM (Interpreter) ═══\n";
+            VM vm;
+            
+            vm.load(optimized);
+            vm.run(true);
+        }
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
