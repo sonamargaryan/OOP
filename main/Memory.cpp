@@ -1,14 +1,11 @@
 #include "Memory.h"
 #include <iostream>
 
-//  CALL FRAME
 CallFrame::CallFrame(const std::string& name, uint32_t retIP)
     : funcName(name), returnIP(retIP) {}
 
-//  MEMORY Constructor
 Memory::Memory() {}
 
-//  CODE SECTION
 void Memory::storeInstruction(const TACInstruction& instr) {
     codeSection.push_back(instr);
 }
@@ -24,7 +21,6 @@ uint32_t Memory::codeSize() const {
     return (uint32_t)codeSection.size();
 }
 
-//  DATA SECTION
 void Memory::storeData(const std::string& name, int32_t value) {
     dataSection[name] = value;
 }
@@ -39,7 +35,6 @@ bool Memory::dataExists(const std::string& name) const {
     return dataSection.count(name) > 0;
 }
 
-//  STACK SECTION
 void Memory::pushFrame(const CallFrame& frame) {
     stackSection.push(frame);
 }
@@ -64,7 +59,6 @@ int Memory::stackDepth() const {
     return (int)stackSection.size();
 }
 
-//  LABEL / FUNCTION TABLES
 void Memory::addLabel(const std::string& name, uint32_t address) {
     labelTable[name] = address;
 }
@@ -91,7 +85,6 @@ bool Memory::hasFunction(const std::string& name) const {
     return funcTable.count(name) > 0;
 }
 
-//  DEBUG — Memory layout print
 void Memory::printLayout() const {
     std::cout << "\n═══ MEMORY LAYOUT ═══\n";
 
