@@ -34,9 +34,9 @@ int32_t Processor::readVar(const std::string& name) {
 void Processor::writeVar(const std::string& name, int32_t value) {
     if (!memory.stackEmpty()) {
         memory.topFrame().locals[name] = value;
-    } else {
-        memory.storeData(name, value);
     }
+    if (memory.dataExists(name))
+        memory.storeData(name, value);
 }
 
 void Processor::run(bool verb) {
@@ -67,7 +67,6 @@ void Processor::run(bool verb) {
 const TACInstruction& Processor::fetch() {
     return memory.fetchInstruction(IP);
 }
-
 
 void Processor::execute(const TACInstruction& instr) {
     switch (instr.op) {
@@ -137,7 +136,6 @@ void Processor::execute(const TACInstruction& instr) {
     }
 }
 
-// COPY: dest = src1
 void Processor::handleCopy(const TACInstruction& i) {
     if (!i.src1.empty() && i.src1.size() > 4 &&
         i.src1.substr(0,4) == "arg_") {
@@ -147,7 +145,6 @@ void Processor::handleCopy(const TACInstruction& i) {
     IP++;
 }
 
-// Arithmetic: dest = src1 op src2
 void Processor::handleArith(const TACInstruction& i) {
     int32_t result = 0;
 
@@ -190,7 +187,6 @@ void Processor::handleCompare(const TACInstruction& i) {
     IP++;
 }
 
-// Jump instructions
 void Processor::handleJump(const TACInstruction& i) {
     if (i.op == TACOp::GOTO) {
         IP = memory.getLabelAddress(i.dest);
@@ -212,7 +208,6 @@ void Processor::handleJump(const TACInstruction& i) {
     }
 }
 
-// Function call
 void Processor::handleCall(const TACInstruction& i) {
     uint32_t funcIP = memory.getFuncAddress(i.src1);
 
@@ -242,7 +237,6 @@ void Processor::handleCall(const TACInstruction& i) {
 
     memory.pushFrame(frame);
 
-    // Stack depth print (debug)
     if (verbose)
         std::cout << "  → CALL " << i.src1
                   << " (stack depth=" << memory.stackDepth() << ")\n";
@@ -250,7 +244,6 @@ void Processor::handleCall(const TACInstruction& i) {
     IP = funcIP;
 }
 
-// Return
 void Processor::handleReturn(const TACInstruction& i) {
     int32_t retVal = 0;
     if (!i.src1.empty())
@@ -263,13 +256,11 @@ void Processor::handleReturn(const TACInstruction& i) {
     memory.popFrame();
 
     if (memory.stackEmpty()) {
-        // main-y return arer
         std::cout << "\n═══ VM RESULT ═══\n";
         std::cout << "  Return value: " << retVal << "\n";
         printRegisters();
         running = false;
     } else {
-        // Return value-ы caller-i dest-um grel
         if (retIP > 0 && retIP <= memory.codeSize()) {
             const TACInstruction& callInstr = memory.fetchInstruction(retIP - 1);
             if (callInstr.op == TACOp::CALL && !callInstr.dest.empty())
@@ -279,9 +270,6 @@ void Processor::handleReturn(const TACInstruction& i) {
     }
 }
 
-// ════════════════════════════════════════════════════════════
-//  DEBUG — Registers print
-// ════════════════════════════════════════════════════════════
 void Processor::printRegisters() const {
     std::cout << "\n  Registers (non-zero):\n";
     bool any = false;
