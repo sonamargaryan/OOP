@@ -38,5 +38,4 @@ private:
     void        load(const std::string& src, const std::string& reg = "t0");
     void        store(const std::string& dest, const std::string& reg = "t0");
 
-    std::string invertedBranch(TACOp op);
 };
