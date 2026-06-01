@@ -71,7 +71,6 @@ void IRGenerator::genStatement(ASTNode* node) {
             genDoWhile(static_cast<DoWhileNode*>(node));
             break;
         case NodeType::AssignmentNode: {
-            // x = expr
             auto* a = static_cast<AssignmentNode*>(node);
             std::string src = genExpr(a->expr.get());
             emit({TACOp::COPY, a->varName, src});
@@ -88,7 +87,6 @@ void IRGenerator::genVarDecl(VarDeclNode* node) {
         std::string src = genExpr(node->initExpr.get());
         emit({TACOp::COPY, node->varName, src});
     } else {
-        // Սկզբնարժեք չկա → 0
         emit({TACOp::COPY, node->varName, "0"});
     }
 }
