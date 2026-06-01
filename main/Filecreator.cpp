@@ -1,4 +1,5 @@
 #include "Filecreator.h"
+#include "Binaryencoder.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -43,22 +44,18 @@ bool FileCreator::assemble() {
 
     return runCommand(cmd, "Assembler");
 }
-bool FileCreator::link() {
-    std::string cmd = "riscv64-unknown-elf-ld"
-                      " -m elf32lriscv"
-                      " " + getObjFile() +
-                      " -o " + getExecFile();
-
-    return runCommand(cmd, "Linker");
+bool FileCreator::encodeBinary(const std::string& assemblyCode) {
+    BinaryEncoder encoder;
+    return encoder.encode(assemblyCode, getBinFile());
 }
-
 bool FileCreator::createExecutable(const std::string& assemblyCode) {
     std::cout << "\n═══ FILE CREATOR ═══\n";
 
     if (!writeAssembly(assemblyCode)) return false;
-    if (!assemble())                  return false;
-    if (!link())                      return false;
-
-    std::cout << "\n✓ Executable created: '" << getExecFile() << "'\n";
+    encodeBinary(assemblyCode);
+    assemble();
+    std::cout << "✓ Files created: "
+              << getAsmFile() << ", "
+              << getBinFile() << "\n";
     return true;
 }

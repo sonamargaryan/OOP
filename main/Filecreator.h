@@ -4,7 +4,6 @@
 
 //    fc.writeAssembly(assemblyCode);   // output.s գրել
 //    fc.assemble();                    // output.o ստեղծել
-//    fc.link();                        // output ստեղծել
 //    fc.run();                         // (optional) գործարկել
 
 class FileCreator {
@@ -14,14 +13,13 @@ public:
     bool writeAssembly(const std::string& assemblyCode);
 
     bool assemble();
-
-    bool link();
+    bool encodeBinary(const std::string& assemblyCode);
 
     bool createExecutable(const std::string& assemblyCode);
 
     std::string getAsmFile()  const { return baseName + ".s"; }
     std::string getObjFile()  const { return baseName + ".o"; }
-    std::string getExecFile() const { return baseName; }
+    std::string getBinFile() const { return baseName+ ".bin"; }
 
 private:
     std::string baseName;
