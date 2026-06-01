@@ -10,4 +10,5 @@ void VM::load(const TACProgram& program) {
 
 void VM::run(bool verbose) {
     processor.run(verbose);
+    memory.printLayout(); 
 }
